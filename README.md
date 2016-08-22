@@ -1,0 +1,2 @@
+# BasicAutoGenerateEntityTool
+数据库自动代码生成工具
