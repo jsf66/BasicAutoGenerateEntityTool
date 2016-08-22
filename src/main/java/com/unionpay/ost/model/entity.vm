@@ -1,0 +1,61 @@
+package ${Configuration.getProjectPackageName()};
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.io.Serializable;
+import java.sql.*;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.SequenceGenerator;
+/**
+* ${entity.entityName} 实体.
+* @author ${Configuration.getAuthor()}
+*/
+@SuppressWarnings("all")
+@Entity
+@Table(schema="${Configuration.getSchema()}",name = "${entity.tableInfo.tableName}" )
+public class ${entity.entityName} implements Serializable {
+#foreach($fieldMeta in $entity.fieldMetaList)
+#if(${fieldMeta.fieldComment})//${fieldMeta.fieldComment}#end
+private ${fieldMeta.fieldType} ${fieldMeta.fieldName};
+#end
+
+// Constructors
+/* default constructor */
+public ${entity.entityName}() {
+
+}
+/** full constructor */
+public ${entity.entityName}(#foreach($fieldMeta in $entity.fieldMetaList)${fieldMeta.fieldType} ${fieldMeta.fieldName}#if($foreach.hasNext),#end#end) {
+#foreach($fieldMeta in $entity.fieldMetaList)
+this.${fieldMeta.fieldName} = ${fieldMeta.fieldName};
+#end
+}
+/*getMethod and setMethod*/
+#foreach($fieldMeta in $entity.fieldMetaList)
+#if(${fieldMeta.whetherPK})
+@Id
+#if(${fieldMeta.sequenceMeta.sequenceName})
+@GeneratedValue(strategy = GenerationType.SEQUENCE,generator="${entity.entityName}_Sequence")
+@SequenceGenerator(name="${entity.entityName}_Sequence", sequenceName="${fieldMeta.sequenceMeta.sequenceName}",initialValue=${fieldMeta.sequenceMeta.sequenceInitialValue},allocationSize=${fieldMeta.sequenceMeta.sequenceAllocationSize})
+#else
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+#end
+#end
+#if(${fieldMeta.fieldDateTimePrecision})
+@Temporal(TemporalType.TIMESTAMP)
+#end
+##@Column(name="${fieldMeta.columnInfo.columnName}"#if(!${fieldMeta.whetherNULL}),nullable=false #else,nullable=true#end#if(${fieldMeta.fieldLength}),length=${fieldMeta.fieldLength}#elseif(${fieldMeta.fieldScale} && ${fieldMeta.fieldPrecision}),precision=${fieldMeta.fieldPrecision},scale=${fieldMeta.fieldScale}#end)
+@Column(name="${fieldMeta.columnInfo.columnName}"#if(!${fieldMeta.whetherNULL}),nullable=false #else,nullable=true#end#if(${fieldMeta.fieldPrecision}),precision=${fieldMeta.fieldPrecision},scale=${fieldMeta.fieldScale}#elseif(${fieldMeta.fieldLength}),length=${fieldMeta.fieldLength}#end)
+public ${fieldMeta.fieldType} get${StringUtils.capFirst(${fieldMeta.fieldName})}(){
+return this.${fieldMeta.fieldName};
+}
+
+public void set${StringUtils.capFirst(${fieldMeta.fieldName})}(${fieldMeta.fieldType} ${fieldMeta.fieldName}){
+this.${fieldMeta.fieldName} = ${fieldMeta.fieldName};
+}
+
+#end
+}
